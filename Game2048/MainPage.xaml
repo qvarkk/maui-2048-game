@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Game2048.MainPage">
+
+    <VerticalStackLayout Margin="50">
+        <HorizontalStackLayout HorizontalOptions="Center">
+            <Label Text="Score: " TextColor="DimGray"/>
+            <Label Text="{Binding Score}" TextColor="DimGray"/>
+        </HorizontalStackLayout>
+        <Grid BackgroundColor="#ccbeb5" HeightRequest="420" Padding="10" WidthRequest="420" x:Name="GameGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+        </Grid>
+
+        <Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" Grid.Column="1" Pressed="Button_Pressed_Up" Text="Up" Margin="25,5,25,5" />
+            <Button Grid.Row="1" Grid.Column="0" Pressed="Button_Pressed_Left" Text="Left" Margin="25,5" />
+            <Button Grid.Row="2" Grid.Column="1" Pressed="Button_Pressed_Down" Text="Down" Margin="25,5" />
+            <Button Grid.Row="1" Grid.Column="2" Pressed="Button_Pressed_Right" Text="Right" Margin="25,5" />
+            <Button Grid.Row="1" Grid.Column="1" Pressed="Button_Pressed_Clear" Text="Restart" Margin="25,5" />
+        </Grid>
+
+
+    </VerticalStackLayout>
+
+</ContentPage>
