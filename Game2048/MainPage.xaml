@@ -6,7 +6,7 @@
     <VerticalStackLayout Margin="50">
         <HorizontalStackLayout HorizontalOptions="Center">
             <Label Text="Score: " TextColor="DimGray"/>
-            <Label Text="{Binding Score}" TextColor="DimGray"/>
+            <Label x:Name="scoreLabel" TextColor="DimGray"/>
         </HorizontalStackLayout>
         <Grid BackgroundColor="#ccbeb5" HeightRequest="420" Padding="10" WidthRequest="420" x:Name="GameGrid">
             <Grid.ColumnDefinitions>
@@ -23,7 +23,7 @@
             </Grid.RowDefinitions>
         </Grid>
 
-        <Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
+        <!--<Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -39,8 +39,10 @@
             <Button Grid.Row="2" Grid.Column="1" Pressed="Button_Pressed_Down" Text="Down" Margin="25,5" />
             <Button Grid.Row="1" Grid.Column="2" Pressed="Button_Pressed_Right" Text="Right" Margin="25,5" />
             <Button Grid.Row="1" Grid.Column="1" Pressed="Button_Pressed_Clear" Text="Restart" Margin="25,5" />
-        </Grid>
+        </Grid>-->
 
+        <Button Pressed="TestButton_1" Text="Place" Margin="25,5,25,5" />
+        <Button Pressed="TestButton" Text="Animation" Margin="25,5,25,5" />
 
     </VerticalStackLayout>
 
