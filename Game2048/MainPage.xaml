@@ -34,11 +34,11 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" Grid.Column="1" Pressed="TestButton1" Text="Up" Margin="25,5,25,5" />
-            <Button Grid.Row="1" Grid.Column="0" Pressed="TestButton3" Text="Left" Margin="25,5" />
-            <Button Grid.Row="2" Grid.Column="1" Pressed="TestButton2" Text="Down" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="2" Pressed="TestButton4" Text="Right" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="1" Pressed="TestButton" Text="Test" Margin="25,5" />
+            <Button Grid.Row="0" Grid.Column="1" Pressed="MoveUpButton" Text="Up" Margin="25,5,25,5" />
+            <Button Grid.Row="1" Grid.Column="0" Pressed="MoveLeftButton" Text="Left" Margin="25,5" />
+            <Button Grid.Row="2" Grid.Column="1" Pressed="MoveDownButton" Text="Down" Margin="25,5" />
+            <Button Grid.Row="1" Grid.Column="2" Pressed="MoveRightButton" Text="Right" Margin="25,5" />
+            <Button Grid.Row="1" Grid.Column="1" Pressed="RestartButton" Text="Restart" Margin="25,5" />
         </Grid>
 
     </VerticalStackLayout>
