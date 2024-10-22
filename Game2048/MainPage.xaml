@@ -23,7 +23,7 @@
             </Grid.RowDefinitions>
         </Grid>
 
-        <!--<Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
+        <Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -34,15 +34,12 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" Grid.Column="1" Pressed="Button_Pressed_Up" Text="Up" Margin="25,5,25,5" />
-            <Button Grid.Row="1" Grid.Column="0" Pressed="Button_Pressed_Left" Text="Left" Margin="25,5" />
-            <Button Grid.Row="2" Grid.Column="1" Pressed="Button_Pressed_Down" Text="Down" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="2" Pressed="Button_Pressed_Right" Text="Right" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="1" Pressed="Button_Pressed_Clear" Text="Restart" Margin="25,5" />
-        </Grid>-->
-
-        <Button Pressed="TestButton_1" Text="Place" Margin="25,5,25,5" />
-        <Button Pressed="TestButton" Text="Animation" Margin="25,5,25,5" />
+            <Button Grid.Row="0" Grid.Column="1" Pressed="TestButton1" Text="Up" Margin="25,5,25,5" />
+            <Button Grid.Row="1" Grid.Column="0" Pressed="TestButton" Text="Test" Margin="25,5" />
+            <Button Grid.Row="2" Grid.Column="1" Pressed="TestButton2" Text="Down" Margin="25,5" />
+            <!--<Button Grid.Row="1" Grid.Column="2" Pressed="Button_Pressed_Right" Text="Right" Margin="25,5" />
+            <Button Grid.Row="1" Grid.Column="1" Pressed="Button_Pressed_Clear" Text="Restart" Margin="25,5" />-->
+        </Grid>
 
     </VerticalStackLayout>
 
