@@ -1,28 +1,11 @@
 ﻿using System.ComponentModel;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
-using Microsoft.Maui.Controls;
 
 namespace Game2048
 {
     public partial class MainPage : ContentPage
     {
         enum Direction { Up, Down, Left, Right }
-
-        private Dictionary<int, Color> tilesValuesColors = new Dictionary<int, Color>()
-        {
-            { 2, new Color(238, 228, 218) },
-            { 4, new Color(237, 224, 200) },
-            { 8, new Color(242, 177, 121) },
-            { 16, new Color(245, 149, 99) },
-            { 32, new Color(246, 124, 95) },
-            { 64, new Color(246, 94, 59) },
-            { 128, new Color(237, 207, 114) },
-            { 256, new Color(237, 204, 97) },
-            { 512, new Color(237, 200, 80) },
-            { 1024, new Color(237, 197, 63) },
-            { 2048, new Color(237, 194, 46) }
-        };
 
         private int Rows;
         private int Columns;
@@ -52,7 +35,7 @@ namespace Game2048
             Grid.SetColumn(tile, tile.column);
         }
 
-        private void MoveTileInGrid(int row, int column, Tile tile)
+        private void MoveTileInList(int row, int column, Tile tile)
         {
             var _tile = tiles.Find(x => x == tile);
 
@@ -60,14 +43,48 @@ namespace Game2048
             {
                 _tile.row = row;
                 _tile.column = column;
+            }
+        }
 
+        // это чудо разбито на 2 функции дабы в самой игре можно было
+        // мувать без эвейта, все сразу, если этого не делать придется
+        // либо везде эвейт писать и тут свои проблемсы либо без эвейта
+        // но тогда эвейты визуала не дают логике работать как надо
+        private void MoveTileInGrid(Tile tile)
+        {
+            var _tile = tiles.Find(x => x == tile);
+
+            if (_tile != null)
+            {
                 Grid.SetRow(tile, tile.row);
                 Grid.SetColumn(tile, tile.column);
             }
         }
 
+        private void RemoveTileFromList(Tile tile)
+        {
+            var _tile = tiles.Find(x => x == tile);
+
+            if (_tile != null)
+            {
+                tiles.Remove(tile);
+            }
+        }
+
+        private void RemoveTileFromGrid(Tile tile)
+        {
+            var _tile = tiles.Find(x => x == tile);
+
+            if (_tile != null)
+            {
+                GameGrid.Remove(tile);
+            }
+        }
+
         private async Task MoveTileToMerge(Tile tile, int row, int column, Direction dir)
         {
+            RemoveTileFromList(tile);
+
             int x = 0;
             int y = 0;
 
@@ -83,29 +100,19 @@ namespace Game2048
                     x = -1;
                     break;
                 case Direction.Right:
-                    y = -1;
+                    x = 1;
                     break;
             }
 
-
             tile.ZIndex = 1;
-            tile.ScaleTo(0, 300);
+
+            tile.ScaleTo(0, 200); // тут эвейт ваще никак нельзя иначе оно летит конкретно чзх
+
             await tile.TranslateTo((column - Grid.GetColumn(tile) + x) * tile.Width,
                                    (row - Grid.GetRow(tile) + y) * tile.Height,
                                    300, Easing.CubicInOut);
 
-            RemoveTile(tile);
-        }
-
-        private void RemoveTile(Tile tile)
-        {
-            var _tile = tiles.Find(x => x == tile);
-
-            if (_tile != null)
-            {
-                tiles.Remove(tile);
-                GameGrid.Remove(tile);
-            }
+            RemoveTileFromGrid(tile);
         }
 
         private async Task<Tile> PlaceTile(int value, int row, int column)
@@ -122,11 +129,13 @@ namespace Game2048
 
         public async Task MoveTile(Tile tile, int row, int column)
         {
+            MoveTileInList(row, column, tile);
+
             await tile.TranslateTo((column - Grid.GetColumn(tile)) * tile.Width,
                                    (row - Grid.GetRow(tile)) * tile.Height,
                                    300, Easing.CubicInOut);
 
-            MoveTileInGrid(row, column, tile);
+            MoveTileInGrid(tile);
 
             tile.TranslationX = 0;
             tile.TranslationY = 0;
@@ -134,7 +143,7 @@ namespace Game2048
 
         public async Task AnimateTileMerge(Tile tile)
         {
-            await tile.ScaleTo(1.2, 250, Easing.CubicInOut);
+            await tile.ScaleTo(1.1, 250, Easing.CubicInOut);
             await tile.ScaleTo(1, 100, Easing.CubicInOut);
         }
 
@@ -173,11 +182,11 @@ namespace Game2048
         private void ResetGameField(object sender, EventArgs e)
         {
             GameGrid.Children.Clear();
-            score.Score = "0";
+            score.Score = 0;
             AddRandomTile(true);
         }
 
-        private void MoveDown()
+        private async void MoveDown()
         {
             for (int column = 0; column < Columns; column++)
             {
@@ -190,15 +199,17 @@ namespace Game2048
                 if (!columnTiles.Any())
                     continue;
 
-                Tile lastMovedTile = null;
+                Tile? lastMovedTile = null;
 
                 foreach (var tile in columnTiles)
                 {
                     if (lastMovedTile != null && lastMovedTile.Value == tile.Value && lastMovedTile.row == cappedRow + 1)
                     {
-                        lastMovedTile.UpdateValue(tile.Value * 2);
-                        AnimateTileMerge(lastMovedTile);
                         MoveTileToMerge(tile, cappedRow, column, Direction.Down);
+                        AnimateTileMerge(lastMovedTile);
+                        lastMovedTile.UpdateValue(tile.Value * 2);
+                        lastMovedTile = tile;
+                        score.Score += tile.Value * 2;
                         continue;
                     }
 
@@ -226,15 +237,17 @@ namespace Game2048
                 if (!columnTiles.Any())
                     continue;
 
-                Tile lastMovedTile = null;
+                Tile? lastMovedTile = null;
 
                 foreach (var tile in columnTiles)
                 {
                     if (lastMovedTile != null && lastMovedTile.Value == tile.Value && lastMovedTile.row == cappedRow - 1)
                     {
-                        lastMovedTile.UpdateValue(tile.Value * 2);
-                        AnimateTileMerge(lastMovedTile);
                         MoveTileToMerge(tile, cappedRow, column, Direction.Up);
+                        AnimateTileMerge(lastMovedTile);
+                        lastMovedTile.UpdateValue(tile.Value * 2);
+                        lastMovedTile = tile;
+                        score.Score += tile.Value * 2;
                         continue;
                     }
 
@@ -245,6 +258,82 @@ namespace Game2048
 
                     lastMovedTile = tile;
                     cappedRow++;
+                }
+            }
+        }
+
+        private void MoveLeft()
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                int cappedColumn = 0;
+
+                var rowTiles = tiles.Where(x => x.row == row)
+                              .OrderBy(x => x.column)
+                              .ToList();
+
+                if (!rowTiles.Any())
+                    continue;
+
+                Tile? lastMovedTile = null;
+
+                foreach (var tile in rowTiles)
+                {
+                    if (lastMovedTile != null && lastMovedTile.Value == tile.Value && lastMovedTile.column == cappedColumn - 1)
+                    {
+                        MoveTileToMerge(tile, row, cappedColumn, Direction.Left);
+                        AnimateTileMerge(lastMovedTile);
+                        lastMovedTile.UpdateValue(tile.Value * 2);
+                        lastMovedTile = tile;
+                        score.Score += tile.Value * 2;
+                        continue;
+                    }
+
+                    if (tile.column != cappedColumn)
+                    {
+                        MoveTile(tile, row, cappedColumn);
+                    }
+
+                    lastMovedTile = tile;
+                    cappedColumn++;
+                }
+            }
+        }
+
+        private void MoveRight()
+        {
+            for (int row = 0; row < Rows; row++)
+            {
+                int cappedColumn = Columns - 1;
+
+                var rowTiles = tiles.Where(x => x.row == row)
+                              .OrderByDescending(x => x.column)
+                              .ToList();
+
+                if (!rowTiles.Any())
+                    continue;
+
+                Tile? lastMovedTile = null;
+
+                foreach (var tile in rowTiles)
+                {
+                    if (lastMovedTile != null && lastMovedTile.Value == tile.Value && lastMovedTile.column == cappedColumn + 1)
+                    {
+                        MoveTileToMerge(tile, row, cappedColumn, Direction.Right);
+                        AnimateTileMerge(lastMovedTile);
+                        lastMovedTile.UpdateValue(tile.Value * 2);
+                        lastMovedTile = tile;
+                        score.Score += tile.Value * 2;
+                        continue;
+                    }
+
+                    if (tile.column != cappedColumn)
+                    {
+                        MoveTile(tile, row, cappedColumn);
+                    }
+
+                    lastMovedTile = tile;
+                    cappedColumn--;
                 }
             }
         }
@@ -262,6 +351,17 @@ namespace Game2048
         public void TestButton2(object sender, EventArgs e)
         {
             MoveDown();
+        }
+
+        public void TestButton3(object sender, EventArgs e)
+        {
+            MoveLeft();
+        }
+
+
+        public void TestButton4(object sender, EventArgs e)
+        {
+            MoveRight();
         }
 
         public class Tile : Frame
@@ -325,14 +425,14 @@ namespace Game2048
             private string score = "0";
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public string Score
+            public int Score
             {
-                get => score;
+                get => Int32.Parse(score);
                 set
                 {
-                    if (score != value)
+                    if (Int32.Parse(score) != value)
                     {
-                        score = value;
+                        score = value.ToString();
                         OnPropertyChanged(nameof(Score));
                     }
                 }
