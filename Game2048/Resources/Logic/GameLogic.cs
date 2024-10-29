@@ -5,16 +5,16 @@
         enum Direction { Up, Down, Left, Right }
 
         private int Score;
-        private int Rows;
-        private int Columns;
+        private int RowsCount;
+        private int ColumnsCount;
         private Grid GameGrid;
         private Random random = new Random();
         private List<Tile> tiles = new List<Tile>();
 
         public GameLogic(int rows, int columns, Grid gameGrid)
         {
-            Rows = rows;
-            Columns = columns;
+            RowsCount = rows;
+            ColumnsCount = columns;
             GameGrid = gameGrid;
         }
 
@@ -25,8 +25,8 @@
 
         private List<(int row, int column)> GetFreeCells()
         {
-            return Enumerable.Range(0, Rows)
-                .SelectMany(row => Enumerable.Range(0, Columns), (row, column) => new { row, column })
+            return Enumerable.Range(0, RowsCount)
+                .SelectMany(row => Enumerable.Range(0, ColumnsCount), (row, column) => new { row, column })
                 .Where(rc => !tiles.Any(x => x.row == rc.row && x.column == rc.column))
                 .Select(rc => (rc.row, rc.column))
                 .ToList();
@@ -39,15 +39,15 @@
                 return true;
             }
 
-            for (int row = 0; row < Rows; row++)
+            for (int row = 0; row < RowsCount; row++)
             {
-                for (int column = 0; column < Columns; column++)
+                for (int column = 0; column < ColumnsCount; column++)
                 {
-                    if (row < 3 && tiles.Find(x => x.row == row && x.column == column)?.Value == tiles.Find(x => x.row == row + 1 && x.column == column)?.Value)
+                    if (row < RowsCount - 1 && tiles.Find(x => x.row == row && x.column == column)?.Value == tiles.Find(x => x.row == row + 1 && x.column == column)?.Value)
                     {
                         return true;
                     }
-                    if (column < 3 && tiles.Find(x => x.row == row && x.column == column)?.Value == tiles.Find(x => x.row == row && x.column == column + 1)?.Value)
+                    if (column < ColumnsCount - 1 && tiles.Find(x => x.row == row && x.column == column)?.Value == tiles.Find(x => x.row == row && x.column == column + 1)?.Value)
                     {
                         return true;
                     }
@@ -66,7 +66,7 @@
             Grid.SetColumn(tile, tile.column);
         }
 
-        public async void AddRandomTile(bool forceTwo = false)
+        public void AddRandomTile(bool forceTwo = false)
         {
             var freeCells = GetFreeCells();
 
@@ -85,8 +85,20 @@
                     value = 4;
                 }
 
-                await PlaceTile(value, randomCell.row, randomCell.column);
+                PlaceTile(value, randomCell.row, randomCell.column);
             }
+        }
+
+        private async Task<Tile> PlaceTile(int value, int row, int column)
+        {
+            Tile tile = new Tile(value, row, column);
+            await tile.ScaleTo(1.2, 0);
+
+            AddTileToGrid(tile);
+
+            await tile.ScaleTo(1, 100);
+
+            return tile;
         }
 
         public void ResetGameField()
@@ -143,18 +155,6 @@
             }
         }
 
-        private async Task<Tile> PlaceTile(int value, int row, int column)
-        {
-            Tile tile = new Tile(value, row, column);
-            await tile.ScaleTo(1.2, 0);
-
-            AddTileToGrid(tile);
-
-            await tile.ScaleTo(1, 100);
-
-            return tile;
-        }
-
         private async Task MoveTileToMerge(Tile tile, int row, int column, Direction dir)
         {
             RemoveTileFromList(tile);
@@ -180,7 +180,7 @@
 
             tile.ZIndex = 1;
 
-            tile.ScaleTo(0, 200); // тут эвейт ваще никак нельзя иначе оно летит конкретно чзх
+            tile.ScaleTo(0, 200);
 
             await tile.TranslateTo((column - Grid.GetColumn(tile) + x) * tile.Width,
                                    (row - Grid.GetRow(tile) + y) * tile.Height,
@@ -216,9 +216,9 @@
             int score = 0;
             bool moveDone = false;
 
-            for (int column = 0; column < Columns; column++)
+            for (int column = 0; column < ColumnsCount; column++)
             {
-                int cappedRow = Rows - 1;
+                int cappedRow = RowsCount - 1;
 
                 var columnTiles = tiles.Where(x => x.column == column)
                               .OrderByDescending(x => x.row)
@@ -262,7 +262,7 @@
             int score = 0;
             bool moveDone = false;
 
-            for (int column = 0; column < Columns; column++)
+            for (int column = 0; column < ColumnsCount; column++)
             {
                 int cappedRow = 0;
 
@@ -308,7 +308,7 @@
             int score = 0;
             bool moveDone = false;
 
-            for (int row = 0; row < Rows; row++)
+            for (int row = 0; row < RowsCount; row++)
             {
                 int cappedColumn = 0;
 
@@ -354,9 +354,9 @@
             int score = 0;
             bool moveDone = false;
 
-            for (int row = 0; row < Rows; row++)
+            for (int row = 0; row < RowsCount; row++)
             {
-                int cappedColumn = Columns - 1;
+                int cappedColumn = ColumnsCount - 1;
 
                 var rowTiles = tiles.Where(x => x.row == row)
                               .OrderByDescending(x => x.column)

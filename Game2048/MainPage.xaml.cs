@@ -24,8 +24,14 @@ namespace Game2048
             BackgroundColor = new Color(251, 247, 238);
         }
 
+        public void OnObjectLoaded(object sender, EventArgs e)
+        {
+            gameLogic.ResetGameField();
+        }
+
         public void RestartButton(object sender, EventArgs e)
         {
+            score.Score = 0;
             gameLogic.ResetGameField();
         }
 
