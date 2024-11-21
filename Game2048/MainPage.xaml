@@ -2,42 +2,41 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              Shell.BackgroundColor="#fbf7ee"
-             Shell.FlyoutHeight="0"
              x:Class="Game2048.MainPage"
              Loaded="OnObjectLoaded">
 
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="2048" IsEnabled="False">
             <MenuFlyoutItem Text="Restart"
-                        Clicked="RestartButton">
+                        Clicked="RestartAction">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
             <MenuFlyoutItem Text="MoveUp"
-                        Clicked="MoveUpButton">
+                        Clicked="MoveUpAction">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="W" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
             <MenuFlyoutItem Text="MoveDown"
-                        Clicked="MoveDownButton">
+                        Clicked="MoveDownAction">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="S" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
             <MenuFlyoutItem Text="Move Left"
-                        Clicked="MoveLeftButton">
+                        Clicked="MoveLeftAction">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="A" />
                 </MenuFlyoutItem.KeyboardAccelerators>
             </MenuFlyoutItem>
 
             <MenuFlyoutItem Text="Move Right"
-            Clicked="MoveRightButton">
+            Clicked="MoveRightAction">
                 <MenuFlyoutItem.KeyboardAccelerators>
                     <KeyboardAccelerator Key="D" />
                 </MenuFlyoutItem.KeyboardAccelerators>
@@ -47,10 +46,20 @@
     </ContentPage.MenuBarItems>
 
     <VerticalStackLayout Margin="50">
-        <HorizontalStackLayout HorizontalOptions="Center">
-            <Label Text="Score: " TextColor="DimGray"/>
-            <Label x:Name="scoreLabel" TextColor="DimGray"/>
-        </HorizontalStackLayout>
+        <VerticalStackLayout.GestureRecognizers>
+            <SwipeGestureRecognizer Direction="Left" Swiped="OnSwiped"/>
+        </VerticalStackLayout.GestureRecognizers>
+
+        <FlexLayout HeightRequest="40" WidthRequest="420" JustifyContent="SpaceBetween">
+            <HorizontalStackLayout>
+                <Label Text="Score: " TextColor="DimGray"/>
+                <Label x:Name="scoreLabel" TextColor="DimGray" Padding="5,0,0,0"/>
+            </HorizontalStackLayout>
+            <ImageButton Source="restart.png"
+                         HeightRequest="5"
+                         WidthRequest="5"
+                         Clicked="RestartAction" />
+        </FlexLayout>
         <Grid BackgroundColor="#ccbeb5" HeightRequest="420" Padding="10" WidthRequest="420" x:Name="GameGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

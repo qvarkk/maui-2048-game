@@ -21,6 +21,21 @@ namespace Game2048
             Binding scoreBinding = new Binding { Source = score, Path = "Score" };
             scoreLabel.SetBinding(Label.TextProperty, scoreBinding);
 
+            SwipeGestureRecognizer upSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Up };
+            SwipeGestureRecognizer downSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
+            SwipeGestureRecognizer leftSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Left };
+            SwipeGestureRecognizer rightSwipeGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Right };
+
+            upSwipeGesture.Swiped += OnSwiped;
+            downSwipeGesture.Swiped += OnSwiped;
+            leftSwipeGesture.Swiped += OnSwiped;
+            rightSwipeGesture.Swiped += OnSwiped;
+
+            GameGrid.GestureRecognizers.Add(upSwipeGesture);
+            GameGrid.GestureRecognizers.Add(downSwipeGesture);
+            GameGrid.GestureRecognizers.Add(leftSwipeGesture);
+            GameGrid.GestureRecognizers.Add(rightSwipeGesture);
+
             BackgroundColor = new Color(251, 247, 238);
         }
 
@@ -29,7 +44,7 @@ namespace Game2048
             gameLogic.ResetGameField();
         }
 
-        public void RestartButton(object sender, EventArgs e)
+        public void RestartAction(object sender, EventArgs e)
         {
             score.Score = 0;
             gameLogic.ResetGameField();
@@ -51,31 +66,50 @@ namespace Game2048
             }
         }
 
-        public void MoveDownButton(object sender, EventArgs e)
+        public void MoveDownAction(object sender, EventArgs e)
         {
             ValidateMove(gameLogic.MoveDown());
         }
 
-        public void MoveUpButton(object sender, EventArgs e)
+        public void MoveUpAction(object sender, EventArgs e)
         {
             ValidateMove(gameLogic.MoveUp());
         }
 
-        public void MoveLeftButton(object sender, EventArgs e)
+        public void MoveLeftAction(object sender, EventArgs e)
         {
             ValidateMove(gameLogic.MoveLeft());
         }
 
 
-        public void MoveRightButton(object sender, EventArgs e)
+        public void MoveRightAction(object sender, EventArgs e)
         {
             ValidateMove(gameLogic.MoveRight());
+        }
+
+        void OnSwiped(object sender, SwipedEventArgs e)
+        {
+            switch (e.Direction)
+            {
+                case SwipeDirection.Left:
+                    MoveLeftAction(sender, e);
+                    break;
+                case SwipeDirection.Right:
+                    MoveRightAction(sender, e);
+                    break;
+                case SwipeDirection.Up:
+                    MoveUpAction(sender, e);
+                    break;
+                case SwipeDirection.Down:
+                    MoveDownAction(sender, e);
+                    break;
+            }
         }
 
         public class ScoreViewModel : INotifyPropertyChanged
         {
             private string score = "0";
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangedEventHandler? PropertyChanged;
 
             public int Score
             {

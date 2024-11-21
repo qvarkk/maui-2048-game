@@ -5,28 +5,13 @@
         public int row { get; set; }
         public int column { get; set; }
 
-        private Dictionary<int, Color> tilesValuesColors = new Dictionary<int, Color>()
-            {
-                { 2, new Color(238, 228, 218) },
-                { 4, new Color(237, 224, 200) },
-                { 8, new Color(242, 177, 121) },
-                { 16, new Color(245, 149, 99) },
-                { 32, new Color(246, 124, 95) },
-                { 64, new Color(246, 94, 59) },
-                { 128, new Color(237, 207, 114) },
-                { 256, new Color(237, 204, 97) },
-                { 512, new Color(237, 200, 80) },
-                { 1024, new Color(237, 197, 63) },
-                { 2048, new Color(237, 194, 46) }
-            };
-
         public Label ValueLabel { get; set; }
         public int Value { get; set; }
 
         public Tile(int value, int row, int column)
         {
             CornerRadius = 10;
-            BackgroundColor = tilesValuesColors[value];
+            BackgroundColor = GetColorByValue(value);
             WidthRequest = 95;
             HeightRequest = 95;
             HorizontalOptions = LayoutOptions.Center;
@@ -48,11 +33,31 @@
             this.column = column;
         }
 
+        private Color GetColorByValue(int value)
+        {
+            if (value <= 0)
+            {
+                throw new ArgumentException("value has to be positive integer");
+            }
+
+            int level = (int)Math.Log(value, 2);
+
+            int redColor = (level * 50) % 256;
+            int greenColor = (level * 30) % 256;
+            int blueColor = (level * 20) % 256;
+
+            redColor = Math.Min(255, redColor + 30);
+            greenColor = Math.Min(255, greenColor + 30);
+            blueColor = Math.Min(255, blueColor + 30);
+
+            return new Color(redColor, greenColor, blueColor);
+        }
+
         public void UpdateValue(int newValue)
         {
             Value = newValue;
             ValueLabel.Text = newValue.ToString();
-            BackgroundColor = tilesValuesColors[newValue];
+            BackgroundColor = GetColorByValue(newValue);
         }
     }
 }
