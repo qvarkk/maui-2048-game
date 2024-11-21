@@ -8,7 +8,7 @@ namespace Game2048
         {
             InitializeComponent();
             
-            MainPage = new MainPage();
+            MainPage = new AppShell();
         }
 
         protected override Window CreateWindow(IActivationState activationState)
@@ -17,8 +17,6 @@ namespace Game2048
 
             const int width = 516;
             const int height = 840;
-
-            
             
             window.Width = width;
             window.Height = height;

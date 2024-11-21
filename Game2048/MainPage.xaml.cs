@@ -35,7 +35,7 @@ namespace Game2048
             gameLogic.ResetGameField();
         }
 
-        private void ValidateMove((int score, bool moveDone) arg)
+        private async void ValidateMove((int score, bool moveDone) arg)
         {
             if (arg.moveDone)
             {
@@ -45,8 +45,9 @@ namespace Game2048
 
             if (!gameLogic.HasAvailableMoves())
             {
-                DisplayAlert("Game Over!", $"Score: {score.Score}", "Ok :(");
-                gameLogic.ResetGameField();
+                bool toReset = await DisplayAlert("Game Over!", $"Score: {score.Score}", "Restart", "Ok :(");
+                if (toReset)
+                    gameLogic.ResetGameField();
             }
         }
 

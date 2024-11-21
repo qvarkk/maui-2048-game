@@ -20,7 +20,7 @@
 
         private void CancelAnims()
         {
-            tiles.ForEach(tile => { tile.CancelAnimations(); });
+            tiles.ForEach(tile => { tile.CancelAnimations(); tile.Scale = 1; });
         }
 
         private List<(int row, int column)> GetFreeCells()

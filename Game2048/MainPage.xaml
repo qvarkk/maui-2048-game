@@ -1,8 +1,50 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Shell.BackgroundColor="#fbf7ee"
+             Shell.FlyoutHeight="0"
              x:Class="Game2048.MainPage"
              Loaded="OnObjectLoaded">
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="2048" IsEnabled="False">
+            <MenuFlyoutItem Text="Restart"
+                        Clicked="RestartButton">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="R" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="MoveUp"
+                        Clicked="MoveUpButton">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="W" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="MoveDown"
+                        Clicked="MoveDownButton">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="S" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="Move Left"
+                        Clicked="MoveLeftButton">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="A" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+            <MenuFlyoutItem Text="Move Right"
+            Clicked="MoveRightButton">
+                <MenuFlyoutItem.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="D" />
+                </MenuFlyoutItem.KeyboardAccelerators>
+            </MenuFlyoutItem>
+
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
 
     <VerticalStackLayout Margin="50">
         <HorizontalStackLayout HorizontalOptions="Center">
@@ -22,24 +64,6 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-        </Grid>
-
-        <Grid Margin="0,15" HeightRequest="220" WidthRequest="400" x:Name="ControlsGrid">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Button Grid.Row="0" Grid.Column="1" Pressed="MoveUpButton" Text="Up" Margin="25,5,25,5" />
-            <Button Grid.Row="1" Grid.Column="0" Pressed="MoveLeftButton" Text="Left" Margin="25,5" />
-            <Button Grid.Row="2" Grid.Column="1" Pressed="MoveDownButton" Text="Down" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="2" Pressed="MoveRightButton" Text="Right" Margin="25,5" />
-            <Button Grid.Row="1" Grid.Column="1" Pressed="RestartButton" Text="Restart" Margin="25,5" />
         </Grid>
 
     </VerticalStackLayout>
