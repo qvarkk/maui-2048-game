@@ -35,11 +35,6 @@
 
         private Color GetColorByValue(int value)
         {
-            if (value <= 0)
-            {
-                throw new ArgumentException("value has to be positive integer");
-            }
-
             int level = (int)Math.Log(value, 2);
 
             int redColor = (level * 50) % 256;

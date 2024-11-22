@@ -1,4 +1,6 @@
-﻿namespace Game2048.Resources.Logic
+﻿using System.Diagnostics;
+
+namespace Game2048.Resources.Logic
 {
     internal class GameLogic
     {
@@ -147,12 +149,7 @@
 
         private void RemoveTileFromGrid(Tile tile)
         {
-            var _tile = tiles.Find(x => x == tile);
-
-            if (_tile != null)
-            {
-                GameGrid.Remove(tile);
-            }
+            GameGrid.Remove(tile);
         }
 
         private async Task MoveTileToMerge(Tile tile, int row, int column, Direction dir)
