@@ -8,23 +8,19 @@ namespace Game2048UnitTests
     public class GameLogicTests
     {
         GameLogic gameLogic;
+        Type gameLogicType = typeof(GameLogic);
         FieldInfo gameGridField, tilesField;
+        MethodInfo addTileToGridMethod;
 
         public GameLogicTests()
         {
             Grid gameGrid = new Grid();
-            object[] gameLogicParameters =
-            {
-                4,
-                4,
-                gameGrid
-            };
+            object[] gameLogicParameters = { 4, 4, gameGrid };
 
-            Type type = typeof(GameLogic);
-            var _gameLogic = Activator.CreateInstance(type, gameLogicParameters);
-
-            var _tilesField = type.GetField("tiles", BindingFlags.NonPublic | BindingFlags.Instance);
-            var _gameGridField = type.GetField("GameGrid", BindingFlags.NonPublic | BindingFlags.Instance);
+            var _gameLogic = Activator.CreateInstance(gameLogicType, gameLogicParameters);
+            var _tilesField = gameLogicType.GetField("tiles", BindingFlags.NonPublic | BindingFlags.Instance);
+            var _gameGridField = gameLogicType.GetField("GameGrid", BindingFlags.NonPublic | BindingFlags.Instance);
+            var _addTileToGridMethod = gameLogicType.GetMethod("AddTileToGrid", BindingFlags.NonPublic | BindingFlags.Instance);
 
             if (_gameLogic == null)
                 throw new InvalidOperationException("GameLogic instance was not found");
@@ -32,10 +28,13 @@ namespace Game2048UnitTests
                 throw new InvalidOperationException("tiles field was not found");
             if (_gameGridField == null)
                 throw new InvalidOperationException("GameGrid field was not found");
+            if (_addTileToGridMethod == null)
+                throw new InvalidOperationException("AddTileToGrid method was not found");
 
             gameLogic = (GameLogic)_gameLogic;
             tilesField = _tilesField;
             gameGridField = _gameGridField;
+            addTileToGridMethod = _addTileToGridMethod;
         }
 
         private void ClearGridAndTiles()
@@ -44,17 +43,25 @@ namespace Game2048UnitTests
             ((List<Tile>)tilesField.GetValue(gameLogic)!).Clear();
         }
 
-        private bool CheckTilesField(List<(int value, int row, int column)> tilesInformation)
+        private void FillGridAndTiles(List<(int value, int row, int column)> tilesData)
+        {
+            tilesData.ForEach(tileData =>
+            {
+                addTileToGridMethod.Invoke(gameLogic, new object[] { new Tile(tileData.value, tileData.row, tileData.column) });
+            });
+        }
+
+        private bool CheckTilesField(List<(int value, int row, int column)> tilesData)
         {
             var tiles = (List<Tile>)tilesField.GetValue(gameLogic)!;
 
-            if (tiles == null || tiles.Count != tilesInformation.Count)
+            if (tiles == null || tiles.Count != tilesData.Count)
                 return false;
 
             foreach (var tile in tiles) {
                 var tileData = (tile.Value, tile.row, tile.column);
 
-                if (!tilesInformation.Contains(tileData))
+                if (!tilesData.Contains(tileData))
                     return false;
             }
 
@@ -62,47 +69,47 @@ namespace Game2048UnitTests
         }
 
         [Theory]
-        [MemberData(nameof(MovementData))]
-        private void TestMoveMethods(List<(int value, int row, int column)> initialTilesInformation,
-                                    List<(int value, int row, int column)> finalTilesInformation,
-                                    string methodName, int score, bool moveDone)
+        [MemberData(nameof(MovementMethodsTestData))]
+        private void MovementMethodsTests(List<(int value, int row, int column)> initialTilesData,
+                                    List<(int value, int row, int column)> finalTilesData,
+                                    string methodName, int expectedScore, bool expectedMoveDone)
         {
-            // Clear tiles list and grid to ensure game field is empty
             ClearGridAndTiles();
+            FillGridAndTiles(initialTilesData);
 
-            // Get AddTileToGrid method to generate tiles from initialTilesInformation
-            MethodInfo? addTileToGridMethod = typeof(GameLogic).GetMethod("AddTileToGrid", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (addTileToGridMethod == null)
-                throw new InvalidOperationException("AddTileToGrid method was not found");
-
-            // Fill GameGrid and tiles fields
-            initialTilesInformation.ForEach(tileInfo =>
-            {
-                addTileToGridMethod.Invoke(gameLogic, new object[] { new Tile(tileInfo.value, tileInfo.row, tileInfo.column) });
-            });
-
-            // Get movement method corresponding to methodName
-            MethodInfo? moveMethod = typeof(GameLogic).GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance);
+            MethodInfo? moveMethod = gameLogicType.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance);
             if (moveMethod == null)
                 throw new InvalidOperationException($"{methodName} method was not found");
 
-            // Invoke movement method and check result for null
             var result = moveMethod.Invoke(gameLogic, null);
             Assert.NotNull(result);
 
-            // Assert tiles field to be as it expected in finalTilesInformation
-            Assert.True(CheckTilesField(finalTilesInformation));
             var (resultScore, resultMoveDone) = ((int score, bool moveDone))result;
+            Assert.Equal(expectedScore, resultScore);
+            Assert.Equal(expectedMoveDone, resultMoveDone);
 
-            // Assert returned values
-            Assert.Equal(score, resultScore);
-            if (moveDone)
-                Assert.True(moveDone);
-            else 
-                Assert.False(moveDone);
+            Assert.True(CheckTilesField(finalTilesData));
         }
 
-        public static IEnumerable<object[]> MovementData()
+        [Theory]
+        [MemberData(nameof(HasAvailableMovesTestData))]
+        private void HasAvailableMovesTests(List<(int value, int row, int column)> tilesData,
+                                             bool expectedResult)
+        {
+            ClearGridAndTiles();
+            FillGridAndTiles(tilesData);
+
+            MethodInfo? hasAvailableMovesMethod = gameLogicType.GetMethod("HasAvailableMoves", BindingFlags.Public | BindingFlags.Instance);
+            if (hasAvailableMovesMethod == null)
+                throw new InvalidOperationException($"HasAvailableMoves method was not found");
+
+            var result = hasAvailableMovesMethod.Invoke(gameLogic, null);
+            Assert.NotNull(result);
+
+            Assert.Equal(expectedResult, result);
+        }
+
+        public static IEnumerable<object[]> MovementMethodsTestData()
         {
             /*
  
@@ -334,6 +341,98 @@ namespace Game2048UnitTests
                 new List<(int value, int row, int column)> { (2, 0, 0), (2, 0, 1), (2, 0, 2), (2, 0, 3) },
                 new List<(int value, int row, int column)> { (4, 0, 2), (4, 0, 3) },
                 "MoveRight", 8, true
+            };
+        }
+
+        public static IEnumerable<object[]> HasAvailableMovesTestData()
+        {
+            /*
+
+            Test #1. No possible moves
+
+            (1 is 16)
+
+            | 2 4 8 1 |
+            | 1 2 4 8 |
+            | 8 1 2 4 |
+            | 4 8 1 2 |
+
+            */
+            yield return new object[]
+            {
+                new List<(int value, int row, int column)> { (2, 0, 0), (4, 0, 1), (8, 0, 2), (16, 0, 3),
+                                                             (16, 1, 0), (2, 1, 1), (4, 1, 2), (8, 1, 3),
+                                                             (8, 2, 0), (16, 2, 1), (2, 2, 2), (4, 2, 3),
+                                                             (4, 3, 0), (8, 3, 1), (16, 3, 2), (2, 3, 3) },
+                false
+            };
+            /*
+
+            Test #2. One possible merge
+
+            (1 is 16)
+
+            | 2 4 8 1 | 16
+            | 1 2 4 1 | 16
+            | 8 1 2 4 |
+            | 4 8 1 2 |
+
+            */
+            yield return new object[]
+            {
+                new List<(int value, int row, int column)> { (2, 0, 0), (4, 0, 1), (8, 0, 2), (16, 0, 3),
+                                                             (16, 1, 0), (2, 1, 1), (4, 1, 2), (16, 1, 3),
+                                                             (8, 2, 0), (16, 2, 1), (2, 2, 2), (4, 2, 3),
+                                                             (4, 3, 0), (8, 3, 1), (16, 3, 2), (2, 3, 3) },
+                true
+            };
+            /*
+
+            Test #3. Many possible merges
+
+            | 2 4 8 8 |
+            | 2 2 4 4 |
+            | 8 8 4 4 |
+            | 4 8 2 2 |
+
+            */
+            yield return new object[]
+            {
+                new List<(int value, int row, int column)> { (2, 0, 0), (4, 0, 1), (8, 0, 2), (8, 0, 3),
+                                                             (2, 1, 0), (2, 1, 1), (4, 1, 2), (4, 1, 3),
+                                                             (8, 2, 0), (8, 2, 1), (4, 2, 2), (4, 2, 3),
+                                                             (4, 3, 0), (8, 3, 1), (2, 3, 2), (2, 3, 3) },
+                true
+            };
+            /*
+
+            Test #4. Possible move but no merge
+
+            | 2 . . . |
+            | . . . . |
+            | . 2 . . |
+            | . . . . |
+
+            */
+            yield return new object[]
+            {
+                new List<(int value, int row, int column)> { (2, 0, 0), (2, 2, 1) },
+                true
+            };
+            /*
+
+            Test #5. Empty field
+
+            | . . . . |
+            | . . . . |
+            | . . . . |
+            | . . . . |
+
+            */
+            yield return new object[]
+            {
+                new List<(int value, int row, int column)> {  },
+                true
             };
         }
     }
